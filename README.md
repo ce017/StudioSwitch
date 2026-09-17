@@ -51,6 +51,8 @@ Studios are identified by **place ID**, so your choices survive closing and reop
 3. Run `StudioSwitch.exe` and click **Hook**.
 4. Restart your MCP client once (e.g. fully quit and reopen the Claude app).
 
+StudioSwitch adds itself to the Start menu the first time it runs, so afterwards you can open it from
+there. If you move the exe, the shortcut follows the next time you open it from the new location.
 Keep the window open while you work and tick or untick places as you go.
 
 > **Windows SmartScreen** may warn because the exe isn't code-signed. Choose *More info → Run anyway*,
@@ -98,6 +100,7 @@ not by its name. Other clients work too: pass the config path to `StudioSwitch.e
 | `%LOCALAPPDATA%\StudioSwitch\StudioSwitchShim.exe` | the shim your clients launch |
 | `%LOCALAPPDATA%\StudioSwitch\hooks.json` | original config entries, for Unhook |
 | `<config>.studioswitch-<timestamp>.bak` | a copy of each config file before it was edited |
+| `%APPDATA%\Microsoft\Windows\Start Menu\Programs\StudioSwitch.lnk` | Start menu shortcut to wherever the exe lives |
 
 Set `STUDIOSWITCH_DIR` to use a different folder instead of `%LOCALAPPDATA%\StudioSwitch`.
 
@@ -123,7 +126,8 @@ Add-MpPreference -AttackSurfaceReductionOnlyExclusions "C:\path\to\StudioSwitch.
 ## Uninstall
 
 Click **Unhook** (or run `StudioSwitch.exe unhook`), restart your MCP clients, then delete
-`StudioSwitch.exe` and `%LOCALAPPDATA%\StudioSwitch`.
+`StudioSwitch.exe`, `%LOCALAPPDATA%\StudioSwitch` and the Start menu shortcut
+(`%APPDATA%\Microsoft\Windows\Start Menu\Programs\StudioSwitch.lnk`).
 
 ## Tests
 

@@ -21,11 +21,54 @@ namespace StudioSwitch
         static int Main(string[] args)
         {
             if (args.Length > 0) return Cli.Run(args);
+            StartMenu.Ensure();
             try { SetProcessDPIAware(); } catch { }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
             return 0;
+        }
+    }
+
+    // Keeps a Start menu entry pointing at wherever this exe currently lives (re-pointed if the exe moves).
+    static class StartMenu
+    {
+        public static string ShortcutPath
+        {
+            get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "StudioSwitch.lnk"); }
+        }
+
+        public static void Ensure()
+        {
+            try
+            {
+                string exe = Application.ExecutablePath;
+                var shellType = Type.GetTypeFromProgID("WScript.Shell");
+                if (shellType == null) return;
+                object shell = Activator.CreateInstance(shellType);
+                try
+                {
+                    object link = Call(shell, "CreateShortcut", BindingFlags.InvokeMethod, ShortcutPath);
+                    if (File.Exists(ShortcutPath) &&
+                        string.Equals((string)Call(link, "TargetPath", BindingFlags.GetProperty), exe, StringComparison.OrdinalIgnoreCase))
+                        return;
+                    Call(link, "TargetPath", BindingFlags.SetProperty, exe);
+                    Call(link, "WorkingDirectory", BindingFlags.SetProperty, Path.GetDirectoryName(exe));
+                    Call(link, "IconLocation", BindingFlags.SetProperty, exe + ",0");
+                    Call(link, "Description", BindingFlags.SetProperty, "Choose which Roblox Studio windows your AI assistant can use");
+                    Call(link, "Save", BindingFlags.InvokeMethod);
+                }
+                finally
+                {
+                    Marshal.FinalReleaseComObject(shell);
+                }
+            }
+            catch { } // a missing shortcut must never stop the app from opening
+        }
+
+        static object Call(object target, string member, BindingFlags flags, params object[] args)
+        {
+            return target.GetType().InvokeMember(member, flags, null, target, args);
         }
     }
 
